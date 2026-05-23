@@ -1,0 +1,55 @@
+flowchart TD
+    Q1["Q1: What do you want from the AI system?"]
+    Q2["Q2: What is the deliverable?"]
+
+    Q1 -->|"General: Summarise a document"| Q2_Summarise
+    Q1 -->|"General: Draft communications"| Q2_DraftComm
+    Q1 -->|"General: Create a timeline"| Q2_Timeline
+    Q1 -->|"General: Legal research"| Q2_LegalResearch
+    Q1 -->|"Litigation: Litigation strategy"| Q2_LitStrategy
+    Q1 -->|"Litigation: Draft a court document"| Q2_CourtDoc
+    Q1 -->|"Corporate: Draft a contract"| Q2_DraftContract
+    Q1 -->|"Corporate: Review a contract"| Q2_ReviewContract
+    Q1 -->|"Others (free text)"| Q2_Others
+
+    Q2_Summarise --> Q2
+    Q2_DraftComm --> Q2
+    Q2_Timeline --> Q2
+    Q2_LegalResearch --> Q2
+    Q2_LitStrategy --> Q2
+    Q2_CourtDoc --> Q2
+    Q2_DraftContract --> Q2
+    Q2_ReviewContract --> Q2
+    Q2_Others --> Q2
+
+    Q2_Summarise_items["Bullet point list<br/>One paragraph<br/>A few paragraphs with headings<br/>Others (free text)"]
+    Q2_DraftComm_items["Email<br/>Text<br/>Letter<br/>Others (free text)"]
+    Q2_Timeline_items["Table with dates, key facts, persons involved<br/>Others (free text)"]
+    Q2_LegalResearch_items["Research memo<br/>Others (free text)"]
+    Q2_LitStrategy_items["Analysis of similar cases and strategy formulation<br/>Others (free text)"]
+    Q2_CourtDoc_items["Statement of claim<br/>Defence<br/>Affidavit<br/>Others (free text)"]
+    Q2_DraftContract_items["Share purchase agreement<br/>Asset purchase agreement<br/>Joint venture agreement<br/>Employment agreement<br/>Company constitution<br/>Others (free text)"]
+    Q2_ReviewContract_items["Table of suggested amendments<br/>Identify red flags or unfavourable contract terms<br/>Others (free text)"]
+    Q2_Others_items["Free text: specify structure and headings"]
+
+    Q2_Summarise -.-> Q2_Summarise_items
+    Q2_DraftComm -.-> Q2_DraftComm_items
+    Q2_Timeline -.-> Q2_Timeline_items
+    Q2_LegalResearch -.-> Q2_LegalResearch_items
+    Q2_LitStrategy -.-> Q2_LitStrategy_items
+    Q2_CourtDoc -.-> Q2_CourtDoc_items
+    Q2_DraftContract -.-> Q2_DraftContract_items
+    Q2_ReviewContract -.-> Q2_ReviewContract_items
+    Q2_Others -.-> Q2_Others_items
+
+    style Q1 fill:#e8f4f8,stroke:#2c7ba0
+    style Q2 fill:#fef3e2,stroke:#d4942b
+    style Q2_Summarise_items fill:#f5f5f5,stroke:#999
+    style Q2_DraftComm_items fill:#f5f5f5,stroke:#999
+    style Q2_Timeline_items fill:#f5f5f5,stroke:#999
+    style Q2_LegalResearch_items fill:#f5f5f5,stroke:#999
+    style Q2_LitStrategy_items fill:#f5f5f5,stroke:#999
+    style Q2_CourtDoc_items fill:#f5f5f5,stroke:#999
+    style Q2_DraftContract_items fill:#f5f5f5,stroke:#999
+    style Q2_ReviewContract_items fill:#f5f5f5,stroke:#999
+    style Q2_Others_items fill:#f5f5f5,stroke:#999
