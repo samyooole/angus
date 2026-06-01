@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prompt Builder — Legal Tasks",
+  title: "ANGUS Prompt Builder — Legal Tasks",
   description: "Build structured prompts for legal document tasks.",
 };
 

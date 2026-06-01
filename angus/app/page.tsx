@@ -14,7 +14,7 @@ export default function Home() {
       <header className="border-b border-zinc-200 dark:border-zinc-800">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
           <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Prompt Builder
+            ANGUS Prompt Builder
           </h1>
 
           {/*<div className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-100 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">

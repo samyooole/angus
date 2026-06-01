@@ -1,5 +1,9 @@
 "use server";
 
+function indefiniteArticle(word: string): string {
+  return /^[aeiou]/i.test(word) ? "an" : "a";
+}
+
 export type TCFormState = {
   prompt: string;
 } | null;
@@ -49,18 +53,44 @@ export async function buildPrompt(_prevState: TCFormState, formData: FormData): 
         ? "Please review the attached contract(s). **[Reminder to user to upload contract(s) to be reviewed.]**"
         : taskLabel === "Create a timeline"
           ? "Please create a timeline in chronological order from the attached document(s). **[Reminder to user to upload the document(s) from which timeline is to be created.]**"
+        : taskLabel === "Draft a document"
+          ? null
+        : taskLabel === "Legal research"
+          ? null
+        : taskLabel === "Draft a contract"
+          ? null
+        : taskLabel === "Draft communications"
+          ? null
+        : task === "__other__"
+          ? `Please ${taskLabel.charAt(0).toLowerCase() + taskLabel.slice(1)}.`
         : `Task: ${taskLabel}`,
-    draftDocLabel ? `Draft: ${draftDocLabel}.` : null,
-    legalResearchDesc ? `Legal research topic: ${legalResearchDesc}` : null,
-    draftContractLabel ? `Draft contract: ${draftContractLabel}.` : null,
-    draftCommLabel ? `Draft communication: ${draftCommLabel}.` : null,
+    draftDocLabel
+      ? taskLabel === "Draft a document"
+        ? `Please draft ${indefiniteArticle(draftDocLabel)} ${draftDocLabel}.`
+        : `Draft: ${draftDocLabel}.`
+      : null,
+    legalResearchDesc
+      ? taskLabel === "Legal research"
+        ? `Please conduct legal research on ${legalResearchDesc}.`
+        : `Legal research topic: ${legalResearchDesc}`
+      : null,
+    draftContractLabel
+      ? taskLabel === "Draft a contract"
+        ? `Please draft ${indefiniteArticle(draftContractLabel)} ${draftContractLabel}.`
+        : `Draft contract: ${draftContractLabel}.`
+      : null,
+    draftCommLabel
+      ? taskLabel === "Draft communications"
+        ? `Please draft ${indefiniteArticle(draftCommLabel)} ${draftCommLabel}.`
+        : `Draft communication: ${draftCommLabel}.`
+      : null,
+    purpose ? `The purpose of the document is ${purpose}.` : null,
+    sources ? `Reference the following source material: ${sources}` : null,
     ``,
     `The output must be formatted as ${formatLabel?.toLowerCase() ?? "a document"}.`,
     tableFormat ? `Table format: ${tableFormat}` : null,
     lengthValue ? `The document should be approximately ${lengthValue} ${lengthType ?? "pages"} in length.` : null,
     `The target audience is ${audience?.toLowerCase() ?? "legal professionals"}.`,
-    purpose ? `Purpose of the document: ${purpose}` : null,
-    sources ? `Reference the following source material: ${sources}` : null,
     toneLabel ? `Use a ${toneLabel.toLowerCase()} tone throughout the document.` : null,
     ``,
     `Ensure the output is accurate, well-structured, and appropriate for the intended audience.`,
