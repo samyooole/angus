@@ -16,7 +16,8 @@ export default function Home() {
           <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
             Prompt Builder
           </h1>
-          <div className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-100 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
+
+          {/*<div className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-100 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
             <button
               onClick={() => setVersion("tc")}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
@@ -37,7 +38,8 @@ export default function Home() {
             >
               Chern Faye&apos;s version
             </button>
-          </div>
+          </div> */}
+          
         </div>
       </header>
 

@@ -23,10 +23,16 @@ export default function TcPage() {
     buildPrompt,
     null,
   );
+  const [practiceArea, setPracticeArea] = useState("");
+  const [task, setTask] = useState("");
+  const [draftDocType, setDraftDocType] = useState("");
+  const [draftContractType, setDraftContractType] = useState("");
+  const [draftCommType, setDraftCommType] = useState("");
   const [format, setFormat] = useState("");
   const [tone, setTone] = useState("");
   const [lengthType, setLengthType] = useState<"pages" | "words">("pages");
   const [copied, setCopied] = useState(false);
+  const [improved, setImproved] = useState(false);
 
   const handleCopy = async () => {
     if (!state?.prompt) return;
@@ -35,53 +41,216 @@ export default function TcPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const taskOptions: Record<string, { label: string; value: string }[]> = {
+    Litigation: [
+      { label: "Summarise", value: "Summarise" },
+      { label: "Draft a document", value: "Draft a document" },
+      { label: "Create a timeline", value: "Create a timeline" },
+      { label: "Legal research", value: "Legal research" },
+      { label: "Others", value: "__other__" },
+    ],
+    "Corporate Transactions": [
+      { label: "Draft a contract", value: "Draft a contract" },
+      { label: "Review a contract", value: "Review a contract" },
+      { label: "Others", value: "__other__" },
+    ],
+    General: [
+      { label: "Draft communications", value: "Draft communications" },
+      { label: "Summarise", value: "Summarise" },
+      { label: "Compare", value: "Compare" },
+      { label: "Others", value: "__other__" },
+    ],
+  };
+
+  const currentTaskOptions = practiceArea ? taskOptions[practiceArea] ?? [] : [];
+
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <form action={formAction} className="space-y-6">
         <Field label="Practice Area">
-          <select name="practiceArea" defaultValue="" required className={selectClass}>
+          <select
+            name="practiceArea"
+            defaultValue=""
+            className={selectClass}
+            onChange={(e) => {
+              setPracticeArea(e.target.value);
+              setTask("");
+            }}
+          >
             <option value="" disabled>
               Select a practice area
             </option>
             <option value="Litigation">Litigation</option>
-            <option value="Corporate transactions">Corporate Transactions</option>
+            <option value="Corporate Transactions">Corporate Transactions</option>
+            <option value="General">General</option>
           </select>
         </Field>
 
         <Field label="What task do you want to do today?">
-          <select name="task" defaultValue="" required className={selectClass}>
+          <select
+            name="task"
+            value={task}
+            disabled={!practiceArea}
+            className={selectClass}
+            onChange={(e) => {
+              setTask(e.target.value);
+              setDraftDocType("");
+              setDraftContractType("");
+              setDraftCommType("");
+            }}
+          >
             <option value="" disabled>
-              Select a task
+              {practiceArea ? "Select a task" : "Select a practice area first"}
             </option>
-            <option value="Summarise">Summarise</option>
-            <option value="Draft">Draft</option>
-            <option value="Create a timeline">Create a Timeline</option>
-            <option value="Legal research">Legal Research</option>
+            {currentTaskOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
+          {task === "__other__" && (
+            <input
+              name="taskOther"
+              type="text"
+              placeholder="Specify task..."
+              className={`${inputClass} mt-2`}
+            />
+          )}
+        </Field>
+
+        {task === "Draft a document" && (
+          <Field label="What would you like me to draft?">
+            <select
+              name="draftDocType"
+              defaultValue=""
+              className={selectClass}
+              onChange={(e) => setDraftDocType(e.target.value)}
+            >
+              <option value="" disabled>Select document type</option>
+              <option value="Statement of Claim">Statement of Claim</option>
+              <option value="Defence">Defence</option>
+              <option value="Affidavit">Affidavit</option>
+              <option value="Written submissions">Written submissions</option>
+              <option value="__other__">Others</option>
+            </select>
+            {draftDocType === "__other__" && (
+              <input
+                name="draftDocOther"
+                type="text"
+                placeholder="Specify document type..."
+                className={`${inputClass} mt-2`}
+              />
+            )}
+          </Field>
+        )}
+
+        {task === "Legal research" && (
+          <Field label="Please describe the issue you would like to research.">
+            <textarea
+              name="legalResearchDesc"
+              placeholder="Describe the legal issue..."
+              className={textareaClass}
+            />
+          </Field>
+        )}
+
+        {task === "Draft a contract" && (
+          <Field label="What contract would you like me to draft?">
+            <select
+              name="draftContractType"
+              defaultValue=""
+              className={selectClass}
+              onChange={(e) => setDraftContractType(e.target.value)}
+            >
+              <option value="" disabled>Select contract type</option>
+              <option value="Share Purchase Agreement">Share Purchase Agreement</option>
+              <option value="Asset Purchase Agreement">Asset Purchase Agreement</option>
+              <option value="Joint Venture Agreement">Joint Venture Agreement</option>
+              <option value="Employment Agreement">Employment Agreement</option>
+              <option value="Company Constitution">Company Constitution</option>
+              <option value="__other__">Others</option>
+            </select>
+            {draftContractType === "__other__" && (
+              <input
+                name="draftContractOther"
+                type="text"
+                placeholder="Specify contract type..."
+                className={`${inputClass} mt-2`}
+              />
+            )}
+          </Field>
+        )}
+
+        {task === "Draft communications" && (
+          <Field label="What communications would you like to draft?">
+            <select
+              name="draftCommType"
+              defaultValue=""
+              className={selectClass}
+              onChange={(e) => setDraftCommType(e.target.value)}
+            >
+              <option value="" disabled>Select communication type</option>
+              <option value="Letter">Letter</option>
+              <option value="Email">Email</option>
+              <option value="Memo">Memo</option>
+              <option value="__other__">Others</option>
+            </select>
+            {draftCommType === "__other__" && (
+              <input
+                name="draftCommOther"
+                type="text"
+                placeholder="Specify communication type..."
+                className={`${inputClass} mt-2`}
+              />
+            )}
+          </Field>
+        )}
+
+        <Field label="What is the objective of this task?">
+          <textarea
+            name="purpose"
+            placeholder="Please describe the objective of the task and provide all relevant context."
+            className={textareaClass}
+          />
+        </Field>
+
+        <Field label="What information or sources should the AI refer to?">
+          <textarea
+            name="sources"
+            placeholder="Please paste or describe the source material."
+            className={textareaClass}
+          />
         </Field>
 
         <Field label="Format">
           <select
             name="format"
             defaultValue=""
-            required
             className={selectClass}
             onChange={(e) => setFormat(e.target.value)}
           >
             <option value="" disabled>
               Select format
             </option>
-            <option value="Bullet-point list">Bullet-point List</option>
-            <option value="Paragraphs">Paragraphs (with headings or without headings)</option>
+            <option value="Bullet point list">Bullet point list</option>
+            <option value="Paragraphs (with headings)">Paragraphs (with headings)</option>
+            <option value="Paragraphs (without headings)">Paragraphs (without headings)</option>
             <option value="Table">Table</option>
-            <option value="other">Other (free text)</option>
+            <option value="other">Others</option>
           </select>
+          {format === "Table" && (
+            <input
+              name="tableFormat"
+              type="text"
+              placeholder="What is the format of the table?"
+              className={`${inputClass} mt-2`}
+            />
+          )}
           {format === "other" && (
             <input
               name="formatOther"
               type="text"
               placeholder="Specify format..."
-              required
               className={`${inputClass} mt-2`}
             />
           )}
@@ -125,13 +294,12 @@ export default function TcPage() {
             type="number"
             min={1}
             placeholder={`Number of ${lengthType}`}
-            required
             className={inputClass}
           />
         </fieldset>
 
         <Field label="Target Audience">
-          <select name="audience" defaultValue="" required className={selectClass}>
+          <select name="audience" defaultValue="" className={selectClass}>
             <option value="" disabled>
               Select target audience
             </option>
@@ -141,28 +309,10 @@ export default function TcPage() {
           </select>
         </Field>
 
-        <Field label="What are you preparing this document for?">
-          <textarea
-            name="purpose"
-            placeholder="Describe the purpose of this document..."
-            required
-            className={textareaClass}
-          />
-        </Field>
-
-        <Field label="What information or sources should the AI refer to?">
-          <textarea
-            name="sources"
-            placeholder="Paste or describe the source material..."
-            className={textareaClass}
-          />
-        </Field>
-
         <Field label="Tone">
           <select
             name="tone"
             defaultValue=""
-            required
             className={selectClass}
             onChange={(e) => setTone(e.target.value)}
           >
@@ -181,7 +331,6 @@ export default function TcPage() {
               name="toneOther"
               type="text"
               placeholder="Specify tone..."
-              required
               className={`${inputClass} mt-2`}
             />
           )}
@@ -210,8 +359,21 @@ export default function TcPage() {
             </button>
           </div>
           <pre className="whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
-            {state.prompt}
+            {improved && "[IMPROVED PROMPT]\n\n"}
+            {state.prompt.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+              part.startsWith("**") && part.endsWith("**")
+                ? <strong key={i}>{part.slice(2, -2)}</strong>
+                : part,
+            )}
           </pre>
+          <div className="flex justify-end">
+            <button
+              onClick={() => setImproved(true)}
+              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              Improve
+            </button>
+          </div>
         </section>
       )}
     </div>
