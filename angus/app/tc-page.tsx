@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { buildPrompt, type TCFormState } from "./tc-actions";
 
 const inputClass =
@@ -8,6 +8,24 @@ const inputClass =
 const labelClass = "text-sm font-medium text-zinc-700 dark:text-zinc-300";
 const selectClass = `${inputClass} appearance-none`;
 const textareaClass = `${inputClass} min-h-[80px] resize-y`;
+
+function reconstructText(node: Node): string {
+  let text = "";
+  for (const child of node.childNodes) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      text += child.textContent;
+    } else if (child instanceof HTMLElement) {
+      if (child.tagName === "STRONG") {
+        text += `**${child.textContent}**`;
+      } else if (child.tagName === "BR") {
+        text += "\n";
+      } else {
+        text += child.textContent;
+      }
+    }
+  }
+  return text;
+}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -28,15 +46,23 @@ export default function TcPage() {
   const [draftDocType, setDraftDocType] = useState("");
   const [draftContractType, setDraftContractType] = useState("");
   const [draftCommType, setDraftCommType] = useState("");
+  const [audience, setAudience] = useState("");
   const [format, setFormat] = useState("");
   const [tone, setTone] = useState("");
   const [lengthType, setLengthType] = useState<"pages" | "words">("pages");
   const [copied, setCopied] = useState(false);
   const [improved, setImproved] = useState(false);
+  const promptRef = useRef<HTMLPreElement>(null);
+
+  useEffect(() => {
+    setImproved(false);
+  }, [state?.prompt]);
 
   const handleCopy = async () => {
-    if (!state?.prompt) return;
-    await navigator.clipboard.writeText(state.prompt);
+    if (!promptRef.current) return;
+    const text = reconstructText(promptRef.current);
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -246,6 +272,14 @@ export default function TcPage() {
               className={`${inputClass} mt-2`}
             />
           )}
+          {format === "Paragraphs (with headings)" && (
+            <input
+              name="headings"
+              type="text"
+              placeholder="What headings should the document have?"
+              className={`${inputClass} mt-2`}
+            />
+          )}
           {format === "other" && (
             <input
               name="formatOther"
@@ -299,14 +333,29 @@ export default function TcPage() {
         </fieldset>
 
         <Field label="Target Audience">
-          <select name="audience" defaultValue="" className={selectClass}>
+          <select
+            name="audience"
+            value={audience}
+            className={selectClass}
+            onChange={(e) => setAudience(e.target.value)}
+          >
             <option value="" disabled>
               Select target audience
             </option>
-            <option value="Court">Court</option>
+            <option value="Singapore Court">Singapore Court</option>
+            <option value="Arbitrator">Arbitrator</option>
             <option value="Lawyer">Lawyer</option>
             <option value="Non-lawyer">Non-lawyer</option>
+            <option value="others">Others</option>
           </select>
+          {audience === "others" && (
+            <input
+              name="audienceOther"
+              type="text"
+              placeholder="Specify target audience..."
+              className={`${inputClass} mt-2`}
+            />
+          )}
         </Field>
 
         <Field label="Tone">
@@ -358,7 +407,12 @@ export default function TcPage() {
               {copied ? "Copied!" : "Copy"}
             </button>
           </div>
-          <pre className="whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
+          <pre
+            ref={promptRef}
+            contentEditable
+            suppressContentEditableWarning
+            className="whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-800 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+          >
             {improved && "[IMPROVED PROMPT]\n\n"}
             {state.prompt.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
               part.startsWith("**") && part.endsWith("**")
@@ -368,7 +422,12 @@ export default function TcPage() {
           </pre>
           <div className="flex justify-end">
             <button
-              onClick={() => setImproved(true)}
+              onClick={() => {
+                if (improved || !promptRef.current) return;
+                setImproved(true);
+                const textNode = document.createTextNode("[IMPROVED PROMPT]\n\n");
+                promptRef.current.prepend(textNode);
+              }}
               className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
             >
               Improve

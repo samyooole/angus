@@ -4,6 +4,13 @@ function indefiniteArticle(word: string): string {
   return /^[aeiou]/i.test(word) ? "an" : "a";
 }
 
+function cleanPurpose(text: string): string {
+  return text
+    .replace(/^I\s+(?:want|need|would\s+like|'d\s+like|am\s+looking|wish)\s+to\s+/i, "")
+    .replace(/^to\s+/i, "")
+    .replace(/\.$/, "");
+}
+
 export type TCFormState = {
   prompt: string;
 } | null;
@@ -15,9 +22,11 @@ export async function buildPrompt(_prevState: TCFormState, formData: FormData): 
   const format = formData.get("format") as string;
   const formatOther = formData.get("formatOther") as string;
   const tableFormat = formData.get("tableFormat") as string;
+  const headings = formData.get("headings") as string;
   const lengthType = formData.get("lengthType") as string;
   const lengthValue = formData.get("lengthValue") as string;
   const audience = formData.get("audience") as string;
+  const audienceOther = formData.get("audienceOther") as string;
   const purpose = formData.get("purpose") as string;
   const sources = formData.get("sources") as string;
   const tone = formData.get("tone") as string;
@@ -34,6 +43,7 @@ export async function buildPrompt(_prevState: TCFormState, formData: FormData): 
   const formatLabel = format === "other" ? formatOther : format;
   const toneLabel = tone === "others" ? toneOther : tone;
 
+  const audienceLabel = audience === "others" ? audienceOther : audience;
   const draftDocLabel = draftDocType === "__other__" ? draftDocOther : draftDocType;
   const draftContractLabel = draftContractType === "__other__" ? draftContractOther : draftContractType;
   const draftCommLabel = draftCommType === "__other__" ? draftCommOther : draftCommType;
@@ -41,8 +51,8 @@ export async function buildPrompt(_prevState: TCFormState, formData: FormData): 
   const prompt = [
     practiceArea
       ? practiceArea === "General"
-        ? "You are a skilled legal assistant."
-        : `You are a skilled legal assistant specializing in ${practiceArea.toLowerCase()} practice.`
+        ? "You are an experienced lawyer."
+        : `You are an experienced lawyer specializing in ${practiceArea.toLowerCase()} practice.`
       : null,
     practiceArea ? `` : null,
     taskLabel === "Summarise"
@@ -84,13 +94,18 @@ export async function buildPrompt(_prevState: TCFormState, formData: FormData): 
         ? `Please draft ${indefiniteArticle(draftCommLabel)} ${draftCommLabel}.`
         : `Draft communication: ${draftCommLabel}.`
       : null,
-    purpose ? `The purpose of the document is ${purpose}.` : null,
-    sources ? `Reference the following source material: ${sources}` : null,
+    purpose ? `The purpose of the document is to ${cleanPurpose(purpose)}.` : null,
+    sources ? `Please reference the following source material: ${sources}. **[Reminder to user to upload source material.]**` : null,
     ``,
     `The output must be formatted as ${formatLabel?.toLowerCase() ?? "a document"}.`,
     tableFormat ? `Table format: ${tableFormat}` : null,
+    headings ? `The headings are as follows: ${headings}.` : null,
     lengthValue ? `The document should be approximately ${lengthValue} ${lengthType ?? "pages"} in length.` : null,
-    `The target audience is ${audience?.toLowerCase() ?? "legal professionals"}.`,
+    audienceLabel
+      ? audienceLabel === "Singapore Court"
+        ? "The target audience is the Singapore Court."
+        : `The target audience is ${indefiniteArticle(audienceLabel)} ${audienceLabel.toLowerCase()}.`
+      : null,
     toneLabel ? `Use a ${toneLabel.toLowerCase()} tone throughout the document.` : null,
     ``,
     `Ensure the output is accurate, well-structured, and appropriate for the intended audience.`,

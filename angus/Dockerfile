@@ -1,4 +1,5 @@
-FROM oven/bun:1-alpine AS base
+# Specify the platform for the build stage
+FROM --platform=linux/amd64 oven/bun:1-alpine AS base
 
 # Install dependencies
 WORKDIR /app
@@ -10,8 +11,8 @@ COPY . .
 ENV NODE_ENV=production
 RUN bun run build
 
-# Runner stage
-FROM oven/bun:1-alpine AS runner
+# Specify the platform for the runner stage as well
+FROM --platform=linux/amd64 oven/bun:1-alpine AS runner
 WORKDIR /app
 COPY --from=base /app/.next/standalone ./
 COPY --from=base /app/.next/static ./.next/static
