@@ -52,7 +52,7 @@ export async function buildPrompt(_prevState: TCFormState, formData: FormData): 
     practiceArea
       ? practiceArea === "General"
         ? "You are an experienced lawyer."
-        : `You are an experienced lawyer specializing in ${practiceArea.toLowerCase()} practice.`
+        : `You are an experienced lawyer specialising in ${practiceArea.toLowerCase()} practice.`
       : null,
     practiceArea ? `` : null,
     taskLabel === "Summarise"
